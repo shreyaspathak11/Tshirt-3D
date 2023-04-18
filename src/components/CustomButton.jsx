@@ -2,6 +2,8 @@ import React from 'react'
 import { useSnapshot } from 'valtio';
 import state from '../store';
 
+import { getContrastingColor } from '../config/helpers';        //for changing color of text in th box
+
 const CustomButton = ({ type, title, customStyles, handleClick }) => 
 {
     const snap = useSnapshot(state);
@@ -9,7 +11,13 @@ const CustomButton = ({ type, title, customStyles, handleClick }) =>
         if (type === "filled") {
             return {
                 backgroundColor: snap.color,
-                color: "#fff",
+                color: getContrastingColor(snap.color),
+            }
+        } else if (type === "outlined") {
+            return {
+                backgroundColor: "transparent",
+                color: snap.color,
+                border: `1px solid ${snap.color}`,
             }
         }
     }

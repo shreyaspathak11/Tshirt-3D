@@ -14,6 +14,98 @@ import { AIPicker,ColorPicker, Tab, FilePicker, CustomButton } from '../componen
 const Customizer = () => {
   const snap = useSnapshot(state);
 
+  const [file, setFile] = useState('');
+  const [prompt, setPrompt] = useState('');
+  const [generatingImg, setGeneratingImg] = useState(false);
+
+  const [activeEditorTab, setActiveEditorTab] = useState("");
+  const [activeFilterTab, setActiveFilterTab] = useState({
+    logoShirt: true,
+    stylishShirt: false,
+  });
+
+  // show tab content depending on the active tab
+  const generateTabContent = () => {
+    switch(activeEditorTab) {
+      case "colorpicker":
+        return <ColorPicker />
+      case "filepicker":
+        return <FilePicker 
+          file={file}
+          setFile={setFile}
+          readFile={readFile}
+        />
+  
+      case "aipicker":
+        return <AIPicker 
+          prompt={prompt}
+          setPrompt={setPrompt}
+          generateImg={generateImg}
+          handleSubmit={handleSubmit}
+        />
+      default:
+        return null;
+    }
+  }
+
+  const handleSubmit = async (type) => {
+    if(!prompt) return alert("Please enter a prompt");
+
+    try{
+      //call our Backend to generate the image!
+    } catch (error) {
+      alert(error)
+    } finally{
+      setGeneratingImg(false);
+      setActiveFilterTab("");
+
+    }
+
+
+  const handleDecals = (type, result) => {
+    const decalType = DecalTypes[type];
+
+    state[decalType.stateProperty] = result;
+
+    if(!activeFilterTab[decalType.filterTab]) {
+      handleActiveFilterTab(decalType.filterTab)
+    }
+  }
+
+  const handleActiveFilterTab = (tabName) => {
+    switch (tabName) {
+      case "logoShirt":
+          state.isLogoTexture = !activeFilterTab[tabName];
+        break;
+      case "stylishShirt":
+          state.isFullTexture = !activeFilterTab[tabName];
+        break;
+      default:
+        state.isLogoTexture = true;
+        state.isFullTexture = false;
+        break;
+    }
+
+ // after setting the state, activeFilterTab is updated
+
+ setActiveFilterTab((prevState) => {      //toggle on and off
+  return {
+    ...prevState,
+    [tabName]: !prevState[tabName]
+  }
+})
+}
+
+
+  const readFile = (type) => {
+    reader(file)
+      .then((result) => {
+        handleDecals(type, result);
+        setActiveEditorTab("");
+    })
+  }
+
+  }
   return (
     <AnimatePresence>
     {!snap.intro && (
@@ -29,9 +121,11 @@ const Customizer = () => {
                 <Tab
                   key={tab.name}
                   tab={tab}
-                  handleClick={() => {}}
+                  handleClick={() => setActiveEditorTab(tab.name)}
                   />
               ))}
+
+              {generateTabContent()}
             </div>
           </div>
         </motion.div>  
@@ -51,23 +145,23 @@ const Customizer = () => {
                 
 
         <motion.div
-          className="filtertabs-container"
-          {...slideAnimation('up')}
+            className='filtertabs-container'
+            {...slideAnimation("up")}
           >
             {FilterTabs.map((tab) => (
               <Tab
                 key={tab.name}
                 tab={tab}
                 isFilterTab
-                isActiveTab=""
-                handleClick={() => {}}
-                />
+                isActiveTab={activeFilterTab[tab.name]}
+                handleClick={() => handleActiveFilterTab(tab.name)}
+              />
             ))}
           </motion.div>
             </>
     )}
     </AnimatePresence>
       )
-}
+    }
 
 export default Customizer
