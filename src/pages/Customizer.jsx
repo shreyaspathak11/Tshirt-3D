@@ -65,7 +65,7 @@ const Customizer = () => {
 
       const data = await response.json();
 
-      handleDecals(type, `data:image/png;base64,${data.photo}`)
+      handleDecals(type, `data:image/png;base64,${data.photo}`)         //The handleDecals function is called with two parameters: a type string and a data URL string that represents the generated image in base64-encoded PNG format.
     } catch (error) {
       alert(error)
     } finally {
